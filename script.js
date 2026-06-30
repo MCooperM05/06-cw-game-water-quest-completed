@@ -28,6 +28,15 @@ const timerDisplay = document.getElementById('timer');
 const cansDisplay = document.getElementById('current-cans');
 const achievementsEl = document.getElementById('achievements');
 const resetButton = document.getElementById('reset-game');
+let gameDifficulty = document.getElementById('');
+
+function setDifficulty(level) {
+  const settings = DIFFICULTY_SETTINGS[level];
+  currentDifficulty = level;
+  SPAWN_DELAY = settings.spawnDelay;
+  TIMER_DURATION = settings.timerDuration;
+  WIN_THRESHOLD = settings.winThreshold;
+}
 
 function updateTimerDisplay() {
   timerDisplay.textContent = timeLeft;
@@ -155,16 +164,10 @@ function endGame() {
 
 }
 
-function setDifficulty(level) {
-  const settings = DIFFICULTY_SETTINGS[level];
-  currentDifficulty = level;
-  SPAWN_DELAY = settings.spawnDelay;
-  TIMER_DURATION = settings.timerDuration;
-  WIN_THRESHOLD = settings.winThreshold;
-}
-
 // Set up click handlers
-document.querySelector('.game-grid').addEventListener('click', handleGridClick);
+document.querySelector('.game-grid').addEventListener('click', () => {
+
+  handleGridClick});
 document.getElementById('start-game').addEventListener('click', startGame);
 document.getElementById('reset-game').addEventListener('click', () => {
   endGame(); // End the current game if active

@@ -60,6 +60,20 @@ h1 img {
   display: block;
 }
 
+select {
+  color: #333;
+  background-color: #FFC907;
+  font-weight: bold;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+select:hover{
+  background-color: red;
+}
+
 .game-instructions {
   font-size: 18px;
   margin-bottom: 30px;
