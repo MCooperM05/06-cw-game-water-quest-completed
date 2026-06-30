@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Water Quest</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://use.typekit.net/lts0pgt.css">
+  
+</head>
+<body>
+  <div class="container">
+    <img src="img/cw_logo_horizontal.png" alt="CW Logo" class="logo"/>
+    <h1>Water Quest</h1>
+    <p class="game-instructions">Collect 20 cans to complete the game!</p>
+    <div class="stats">
+      <p>Cans Collected: <span id="current-cans">0</span></p>
+      <p>Time Left: <span id="timer">30</span>s</p>
+    </div>
+    <div id="achievements" class="achievement"></div>
+    <div class="game-grid"></div>
+    <div class="controls">
+      <button id="start-game">Start Game</button>
+      <button id="reset-game">Reset</button>
+    </div>
+  </div>
+  <!-- Confetti Installation -->
+  <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
