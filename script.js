@@ -10,6 +10,17 @@ let timeLeft = TIMER_DURATION;
 const canIncrease = 2;
 const grid = document.querySelector('.game-grid');
 
+const DIFFICULTY_SETTINGS = {
+  easy:   { spawnDelay: 1400, timerDuration: 40, winThreshold: 15 },
+  medium: { spawnDelay: 1000, timerDuration: 30, winThreshold: 20 },
+  hard:   { spawnDelay: 600,  timerDuration: 20, winThreshold: 25 },
+};
+
+let currentDifficulty = 'medium'; // default
+let SPAWN_DELAY = DIFFICULTY_SETTINGS[currentDifficulty].spawnDelay;
+let TIMER_DURATION = DIFFICULTY_SETTINGS[currentDifficulty].timerDuration;
+let WIN_THRESHOLD = DIFFICULTY_SETTINGS[currentDifficulty].winThreshold;
+
 // Confetti
 const jsConfetti = new JSConfetti();
 
@@ -142,6 +153,14 @@ function endGame() {
   document.getElementById('start-game').style.display = 'inline-block'; // Show the start button
   document.getElementById('start-game').textContent = 'Retry?'; // Change button text to indicate restart
 
+}
+
+function setDifficulty(level) {
+  const settings = DIFFICULTY_SETTINGS[level];
+  currentDifficulty = level;
+  SPAWN_DELAY = settings.spawnDelay;
+  TIMER_DURATION = settings.timerDuration;
+  WIN_THRESHOLD = settings.winThreshold;
 }
 
 // Set up click handlers
