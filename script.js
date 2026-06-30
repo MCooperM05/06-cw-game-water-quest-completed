@@ -9,15 +9,16 @@ const grid = document.querySelector('.game-grid');
 
 // Difficulty settings, keyed by the <select> option values (1, 2, 3)
 const DIFFICULTY_SETTINGS = {
-  '1': { label: 'easy',   spawnDelay: 1400, timerDuration: 40, winThreshold: 15 },
-  '2': { label: 'medium', spawnDelay: 1000, timerDuration: 30, winThreshold: 20 },
-  '3': { label: 'hard',   spawnDelay: 600,  timerDuration: 20, winThreshold: 25 },
+  '1': { label: 'easy',   spawnDelay: 1200, timerDuration: 40, winThreshold: 15, decreaseCans: 1 },
+  '2': { label: 'medium', spawnDelay: 1000, timerDuration: 30, winThreshold: 20, decreaseCans: 1 },
+  '3': { label: 'hard',   spawnDelay: 800,  timerDuration: 20, winThreshold: 25, decreaseCans: 2 },
 };
 
 let currentDifficulty = '2'; // default to medium
 let SPAWN_DELAY = DIFFICULTY_SETTINGS[currentDifficulty].spawnDelay;
 let TIMER_DURATION = DIFFICULTY_SETTINGS[currentDifficulty].timerDuration;
 let WIN_THRESHOLD = DIFFICULTY_SETTINGS[currentDifficulty].winThreshold;
+let DECREASE_CANS = DIFFICULTY_SETTINGS[currentDifficulty].decreaseCans;
 let timeLeft = TIMER_DURATION;
 
 // Confetti
@@ -28,6 +29,7 @@ const cansDisplay = document.getElementById('current-cans');
 const achievementsEl = document.getElementById('achievements');
 const resetButton = document.getElementById('reset-game');
 const difficultySelect = document.getElementById('difficulty-select');
+let total = document.getElementById("total");
 
 // Apply a difficulty level (expects '1', '2', or '3')
 function setDifficulty(level) {
@@ -38,6 +40,9 @@ function setDifficulty(level) {
   SPAWN_DELAY = settings.spawnDelay;
   TIMER_DURATION = settings.timerDuration;
   WIN_THRESHOLD = settings.winThreshold;
+  DECREASE_CANS = settings.decreaseCans;
+  total.textContent = WIN_THRESHOLD;
+
 
   // Keep the displayed timer in sync if a game hasn't started yet
   if (!gameActive) {
@@ -118,7 +123,7 @@ function handleGridClick(event) {
     return;
   }
 
-  currentCans = Math.max(0, currentCans - 1);
+  currentCans = Math.max(0, currentCans - DECREASE_CANS);
   updateCansDisplay();
 }
 
