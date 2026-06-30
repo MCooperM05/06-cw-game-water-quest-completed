@@ -1,25 +1,24 @@
 // Game configuration and state variables
 const GOAL_CANS = 25;        // Total items needed to collect
-const TIMER_DURATION = 30;   // Seconds for the countdown timer
-const SPAWN_DELAY = 1000;    // Milliseconds between can spawns
 let currentCans = 0;         // Current number of items collected
 let gameActive = false;      // Tracks if game is currently running
 let spawnTimeout;            // Holds the timeout for spawning items
 let timerInterval;           // Holds the interval for the countdown timer
-let timeLeft = TIMER_DURATION;
 const canIncrease = 2;
 const grid = document.querySelector('.game-grid');
 
+// Difficulty settings, keyed by the <select> option values (1, 2, 3)
 const DIFFICULTY_SETTINGS = {
-  easy:   { spawnDelay: 1400, timerDuration: 40, winThreshold: 15 },
-  medium: { spawnDelay: 1000, timerDuration: 30, winThreshold: 20 },
-  hard:   { spawnDelay: 600,  timerDuration: 20, winThreshold: 25 },
+  '1': { label: 'easy',   spawnDelay: 1400, timerDuration: 40, winThreshold: 15 },
+  '2': { label: 'medium', spawnDelay: 1000, timerDuration: 30, winThreshold: 20 },
+  '3': { label: 'hard',   spawnDelay: 600,  timerDuration: 20, winThreshold: 25 },
 };
 
-let currentDifficulty = 'medium'; // default
+let currentDifficulty = '2'; // default to medium
 let SPAWN_DELAY = DIFFICULTY_SETTINGS[currentDifficulty].spawnDelay;
 let TIMER_DURATION = DIFFICULTY_SETTINGS[currentDifficulty].timerDuration;
 let WIN_THRESHOLD = DIFFICULTY_SETTINGS[currentDifficulty].winThreshold;
+let timeLeft = TIMER_DURATION;
 
 // Confetti
 const jsConfetti = new JSConfetti();
@@ -28,14 +27,23 @@ const timerDisplay = document.getElementById('timer');
 const cansDisplay = document.getElementById('current-cans');
 const achievementsEl = document.getElementById('achievements');
 const resetButton = document.getElementById('reset-game');
-let gameDifficulty = document.getElementById('');
+const difficultySelect = document.getElementById('difficulty-select');
 
+// Apply a difficulty level (expects '1', '2', or '3')
 function setDifficulty(level) {
   const settings = DIFFICULTY_SETTINGS[level];
+  if (!settings) return;
+
   currentDifficulty = level;
   SPAWN_DELAY = settings.spawnDelay;
   TIMER_DURATION = settings.timerDuration;
   WIN_THRESHOLD = settings.winThreshold;
+
+  // Keep the displayed timer in sync if a game hasn't started yet
+  if (!gameActive) {
+    timeLeft = TIMER_DURATION;
+    updateTimerDisplay();
+  }
 }
 
 function updateTimerDisplay() {
@@ -83,7 +91,7 @@ function scheduleNextSpawn() {
 function spawnWaterCan() {
   if (!gameActive) return; // Stop if the game is not active
   const cells = document.querySelectorAll('.grid-cell');
-  
+
   // Clear all cells before spawning a new water can
   cells.forEach(cell => (cell.innerHTML = ''));
 
@@ -116,21 +124,26 @@ function handleGridClick(event) {
 
 // Initializes and starts a new game
 function startGame() {
+  if (gameActive) return; // Prevent starting a new game if one is already active
+
+  // Lock in whichever difficulty is currently selected
+  if (difficultySelect) {
+    setDifficulty(difficultySelect.value);
+  }
+  if (difficultySelect) difficultySelect.disabled = true; // prevent changing mid-round
+
   createGrid(); // Ensure the grid is set up before starting
 
   window.scrollTo(0, document.body.scrollHeight); // Jump instantly to the bottom of the page
 
   document.getElementById('start-game').style.display = 'none'; // Hide the start button once the game starts
 
-  if (gameActive) return; // Prevent starting a new game if one is already active
-
   gameActive = true;
   currentCans = 0;
   timeLeft = TIMER_DURATION;
   updateCansDisplay();
   updateTimerDisplay();
-  createGrid(); // Set up the game 
-  
+
   // Hide any previous end-of-game message
   if (achievementsEl) {
     achievementsEl.className = 'achievement';
@@ -147,7 +160,7 @@ function startGame() {
 
     if (timeLeft <= 0) {
       endGame();
-      const didWin = currentCans >= 20;
+      const didWin = currentCans >= WIN_THRESHOLD;
       showEndMessage(didWin);
     }
   }, 1000);
@@ -159,15 +172,13 @@ function endGame() {
   clearInterval(timerInterval); // Stop countdown timer
   grid.innerHTML = ''; // Clear any existing grid cells
   if (resetButton) resetButton.style.display = 'none';
+  if (difficultySelect) difficultySelect.disabled = false; // allow changing difficulty again
   document.getElementById('start-game').style.display = 'inline-block'; // Show the start button
   document.getElementById('start-game').textContent = 'Retry?'; // Change button text to indicate restart
-
 }
 
 // Set up click handlers
-document.querySelector('.game-grid').addEventListener('click', () => {
-
-  handleGridClick});
+document.querySelector('.game-grid').addEventListener('click', handleGridClick);
 document.getElementById('start-game').addEventListener('click', startGame);
 document.getElementById('reset-game').addEventListener('click', () => {
   endGame(); // End the current game if active
@@ -177,3 +188,12 @@ document.getElementById('reset-game').addEventListener('click', () => {
   updateTimerDisplay();
   document.getElementById('start-game').textContent = 'Start Game'; // Change button text to indicate start
 });
+
+// Update timer preview immediately when difficulty changes (before game starts)
+if (difficultySelect) {
+  difficultySelect.addEventListener('change', () => {
+    if (!gameActive) setDifficulty(difficultySelect.value);
+  });
+  // Initialize from whatever the select's default value is on page load
+  setDifficulty(difficultySelect.value);
+}
