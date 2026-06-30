@@ -1,9 +1,10 @@
 // Game configuration and state variables
 const GOAL_CANS = 25;        // Total items needed to collect
 const TIMER_DURATION = 30;   // Seconds for the countdown timer
+const SPAWN_DELAY = 1000;    // Milliseconds between can spawns
 let currentCans = 0;         // Current number of items collected
 let gameActive = false;      // Tracks if game is currently running
-let spawnInterval;           // Holds the interval for spawning items
+let spawnTimeout;            // Holds the timeout for spawning items
 let timerInterval;           // Holds the interval for the countdown timer
 let timeLeft = TIMER_DURATION;
 const canIncrease = 2;
@@ -51,6 +52,13 @@ function createGrid() {
   }
 }
 
+function scheduleNextSpawn() {
+  if (!gameActive) return;
+
+  clearTimeout(spawnTimeout);
+  spawnTimeout = setTimeout(spawnWaterCan, SPAWN_DELAY);
+}
+
 // Spawns a new item in a random grid cell
 function spawnWaterCan() {
   if (!gameActive) return; // Stop if the game is not active
@@ -68,6 +76,8 @@ function spawnWaterCan() {
       <div class="water-can"></div>
     </div>
   `;
+
+  scheduleNextSpawn();
 }
 
 function handleGridClick(event) {
@@ -110,7 +120,6 @@ function startGame() {
   spawnWaterCan();
 
   if (resetButton) resetButton.style.display = 'inline-block';
-  spawnInterval = setInterval(spawnWaterCan, 1000); // Spawn water cans every second
   timerInterval = setInterval(() => {
     if (!gameActive) return;
     timeLeft -= 1;
@@ -126,7 +135,7 @@ function startGame() {
 
 function endGame() {
   gameActive = false; // Mark the game as inactive
-  clearInterval(spawnInterval); // Stop spawning water cans
+  clearTimeout(spawnTimeout); // Stop spawning water cans
   clearInterval(timerInterval); // Stop countdown timer
   grid.innerHTML = ''; // Clear any existing grid cells
   if (resetButton) resetButton.style.display = 'none';
